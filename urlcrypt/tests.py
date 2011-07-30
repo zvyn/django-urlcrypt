@@ -7,7 +7,7 @@ from django.core.urlresolvers import reverse
 
 from django.test import TestCase
 from urlcrypt.lib import generate_login_token, decode_login_token, encode_token, base64url_encode
-from urlcrypt.conf import URLCRYPT_LOGIN_URL, URLCRYPT_USE_RSA_ENCRYPTION
+from urlcrypt.conf import URLCRYPT_LOGIN_URL, URLCRYPT_USE_RSA_ENCRYPTION, URLCRYPT_RATE_LIMIT
 
 class UrlCryptTests(TestCase):
     
@@ -100,7 +100,7 @@ class UrlCryptTests(TestCase):
         for i in xrange(100):
             token = generate_login_token(self.test_user, u'/users/following')
             response = self.client.get(reverse('urlcrypt_redirect', args=(token,)))
-            if 0 <= i <= 60:
+            if 0 <= i <= URLCRYPT_RATE_LIMIT:
                 self.assertEqual(response.status_code, 302)
             else:
                 self.assertEqual(response.status_code, 403)
