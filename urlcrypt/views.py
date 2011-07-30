@@ -21,7 +21,7 @@ def rate_limit(num=60):
             else:
                 num_tries = cache.incr(cache_key, delta=1)
             if num_tries > num:
-                raise HttpResponseForbidden("Rate Limit Exceeded")
+                return HttpResponseForbidden("Rate Limit Exceeded")
             return func(request, *args, **kwargs)
         return wrapper
     return decorator

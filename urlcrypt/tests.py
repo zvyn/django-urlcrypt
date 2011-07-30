@@ -95,3 +95,13 @@ class UrlCryptTests(TestCase):
         encoded_url = t.render(c).strip()
         self.assert_login_url(encoded_url, reverse('urlcrypt_test_view_username', args=(self.test_user.username,)))
      
+
+    def test_rate_limiting(self):
+        for i in xrange(100):
+            token = generate_login_token(self.test_user, u'/users/following')
+            response = self.client.get(reverse('urlcrypt_redirect', args=(token,)))
+            if 0 <= i <= 60:
+                self.assertEqual(response.status_code, 302)
+            else:
+                self.assertEqual(response.status_code, 403)
+                self.assertEqual(response.content, "Rate Limit Exceeded")
