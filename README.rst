@@ -97,4 +97,4 @@ Credits
 
 .. _`David Ziegler`: http://github.com/dziegler
 .. _`Christopher Hesse`: http://github.com/cshesse
-
+.. _`Milan Oberkirch`: http://github.com/zvyn
