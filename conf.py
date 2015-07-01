@@ -4,7 +4,7 @@ from django.conf import settings
 
 SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
 
-SECRET_KEY = getattr(settings, 'SECRET_KEY', 'sekrit')
+SECRET_KEY = getattr(settings, 'SECRET_KEY', 'sekrit').encode()
 RUNNING_TESTS = getattr(settings, 'RUNNING_TESTS', False)
 
 if RUNNING_TESTS:

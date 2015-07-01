@@ -21,7 +21,7 @@ OBFUSCATE_KEY = hashlib.sha512(SECRET_KEY).digest() + hashlib.sha512(SECRET_KEY[
 
 def base64url_encode(text):
     padded_b64 = base64.urlsafe_b64encode(text)
-    return padded_b64.replace('=', '') # = is a reserved char
+    return padded_b64.replace(b'=', b'') # = is a reserved char
 
 def base64url_decode(raw_b64):
     # calculate padding characters
@@ -34,38 +34,41 @@ def base64url_decode(raw_b64):
 
 def pack(*strings):
     assert '|' not in ''.join(strings)
-    return '|'.join(strings)
+    return '|'.join(strings).encode()
 
 def unpack(packed_string):
-    return packed_string.split('|')
+    return packed_string.decode().split('|')
 
 def obfuscate(text):
+    print(text)
     # copy out our OBFUSCATE_KEY to the length of the text
     key = OBFUSCATE_KEY * (len(text)//len(OBFUSCATE_KEY) + 1)
 
     # XOR each character from our input with the corresponding character
     # from the key
-    xor_gen = (chr(ord(t) ^ ord(k)) for t, k in zip(text, key))
-    return ''.join(xor_gen)
+    xor_gen = (bytes([t ^ k]) for t, k in zip(text, key))
+    return b''.join(xor_gen)
 
 deobfuscate = obfuscate
 
 def encode_token(strings):
+    print(strings)
     secret_key = secret_key_f(*strings)
-    signature = hmac.new(str(secret_key), pack(*strings), sha_hmac).hexdigest()
+    signature = hmac.new(secret_key, pack(*strings), sha_hmac).hexdigest()
     packed_string = pack(signature, *strings)
     return obfuscate(packed_string)
 
 def decode_token(token, keys):
     packed_string = deobfuscate(token)
     strings = unpack(packed_string)[1:]
+    print(strings)
     assert token == encode_token(strings)
     return dict(zip(keys, strings))
 
 def secret_key_f(user_id, *args):
     # generate a secret key given the user id
     user = User.objects.get(id=int(user_id))
-    return user.password + SECRET_KEY
+    return user.password.encode() + SECRET_KEY
 
 def generate_login_token(user, url):
     strings = [str(user.id), url.strip(), str(int(time.time()))]

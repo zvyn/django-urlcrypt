@@ -30,7 +30,7 @@ def rate_limit(num=60):
 def login_redirect(request, token):
     try:
         decoded_data = decode_login_token(token)
-    except Exception, ex:
+    except Exception:
         return HttpResponseRedirect(URLCRYPT_LOGIN_URL)
 
     if request.user.is_authenticated() and request.user.id == decoded_data['user_id']:
